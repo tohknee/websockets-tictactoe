@@ -14,6 +14,29 @@ const App = () => {
     }
     const ws = new WebSocket(process.env.REACT_APP_WS_URL); //pass Websocket server url as env variable
 
+    //websocket.current objects provides four events:open connection, message recieved, error, connection closed. can be replaced with addEventListener
+    ws.onopen = () => {
+      const message ={
+        type: 'add-new-player',
+        data: {
+          playerName,
+        }
+      }
+      ws.send(JSON.stringify(message))
+    };
+
+    
+    ws.onmessage = (e) => {
+      console.log(e);
+    };
+    
+    ws.onerror = (e) => {
+      console.error(e);
+    };
+    
+    ws.onclose = (e) => {
+      console.log(e);
+    };
     webSocket.current={ //
       ws,
     }
