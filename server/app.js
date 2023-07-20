@@ -4,6 +4,7 @@ const { createServer } = require("http");
 const morgan = require("morgan");
 
 const { port } = require("./config");
+const { Game, Player } = require("./game-state");
 
 const app = express();
 
@@ -20,6 +21,8 @@ const server = createServer(app);
 
 const wss = new WebSocket.Server({ server }); //create websocket server
 
+let game = null; // this module level global var is how the game will persist across websocket messages
+
 wss.on("connection", (ws) => {
   //listen for connection events
   ws.on("message", (jsonData) => {
@@ -31,17 +34,59 @@ wss.on("connection", (ws) => {
   });
 });
 
+const broadcastMessage = (type, data, players) => {
+  const message = JSON.stringify({
+    type,
+    data,
+  });
+
+  console.log(`Broadcasting message ${message}...`);
+
+  players.forEach((player) => {
+    player.ws.send(message, (err) => {
+      if (err) {
+        // TODO Handle errors.
+        console.error(err);
+      }
+    });
+  });
+};
+
+const startGame = () => {
+  const data = game.getData(); //gets data for current game state
+  data.statusMessage = `Select a square ${game.currentPlayer.playerName}!`;
+  broadcastMessage('start-game', data, game.getPlayers());
+};
+
+
 const processIncomingMessage = (jsonData, ws) => {
   console.log(`Processing incoming message ${jsonData}...`);
 
   const message = JSON.parse(jsonData);
 
   const addNewPlayer = (playerName, ws) => {
-    // TODO Handle adding the new player.
+    const player = new Player(playerName, ws);
+
+    // Check if the game global variable is null
+    if (game === null) {
+      // Instantiate a new instance of the Game class, passing in the new player as player "1"
+      game = new Game(player);
+
+      // Now you have a new game instance with the new player as player "1"
+    } else if (game.player2 === null) {
+      // If player2 property is null, set it to the instantiated player
+      game.player2 = player;
+      // Call the startGame function to begin the game
+      startGame();
+    } else {
+      console.log(`Ignoring player ${playerName}...`);
+      //close players websocket
+      ws.close();
+    }
   };
 
   switch (message.type) {
-    case 'add-new-player':
+    case "add-new-player":
       addNewPlayer(message.data.playerName, ws);
       break;
     default:
