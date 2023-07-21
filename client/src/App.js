@@ -15,17 +15,30 @@ const App = () => {
     }
     const ws = new WebSocket(process.env.REACT_APP_WS_URL); //pass Websocket server url as env variable
 
-    //websocket.current objects provides four events:open connection, message recieved, error, connection closed. can be replaced with addEventListener
-    ws.onopen = () => {
-      const message ={
-        type: 'add-new-player',
-        data: {
-          playerName,
-        }
+    const sendMessage=(type,data)=> {
+      const message = {
+        type,
+        data,
       }
-      ws.send(JSON.stringify(message))
-    };
+      const jsonMessage = JSON.stringify(message)
+      console.log("Sending message:",jsonMessage)
+      ws.send(jsonMessage)
+    }
+    //websocket.current objects provides four events:open connection, message recieved, error, connection closed. can be replaced with addEventListene
 
+    // ws.onopen = () => {
+    //   const message ={
+    //     type: 'add-new-player',
+    //     data: {
+    //       playerName,
+    //     }
+    //   }
+    //   ws.send(JSON.stringify(message))
+    // };
+    //below replaces above code
+    ws.onopen = () => {
+      sendMessage('add-new-player', { playerName });
+    };
     
     ws.onmessage = (e) => {
       console.log(`Processing incoming message ${e.data}...`); 
@@ -53,6 +66,7 @@ const App = () => {
     };
     webSocket.current={ //
       ws,
+      sendMessage,
     }
     //clean up function called before effect so previous effect execution is cleaned up. closes connection to the server
     return function cleanup() {
@@ -60,19 +74,24 @@ const App = () => {
         webSocket.current.ws.close();
       }
     };
-
-
   },[playerName]);
   
 
   const updatePlayerName = (playerName) => {
     setPlayerName(playerName);
   };
+
+  const selectGameSquare = (squareIndex)=>{
+    if(!game || game.gameOver || playerName !== game.currentPlayer.playerName){
+      return;
+    }
+    webSocket.current.sendMessage('select-game-square', {squareIndex})
+  }
   return (
     <div>
       <h1>Tic-Tac-Toe Online</h1>
       {playerName ? (
-        <Game playerName={playerName} game={game} />
+        <Game playerName={playerName} selectGameSquare={selectGameSquare} game={game} />
       ) : (
         <Home updatePlayerName={updatePlayerName} />
       )}

@@ -1,5 +1,6 @@
 {
   "dependencies": {
+    "os-browserify": "^0.3.0",
     "ws": "^7.5.9"
   },
   "devDependencies": {
