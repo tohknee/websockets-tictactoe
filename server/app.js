@@ -29,8 +29,25 @@ wss.on("connection", (ws) => {
     processIncomingMessage(jsonData, ws);
   });
 
-  ws.on("close", () => {
-    // TODO Cleanup the player that's associated with this WS.
+  ws.on('close', () => {
+    // If there's a game available...
+    if (game !== null) {
+      const { player1, player2 } = game;
+  
+      // If the closed WS belonged to either player 1 or player 2
+      // then we need to abort the game.
+      if (player1.ws === ws || (player2 !== null && player2.ws === ws)) {
+        // If the closed WS doesn't belong to player 1
+        // then close their WS, otherwise if there's a
+        // player 2 then close their WS.
+        if (player1.ws !== ws) {
+          player1.ws.close();
+        } else if (player2 !== null) {
+          player2.ws.close();
+        }
+        game = null;
+      }
+    }
   });
 });
 
