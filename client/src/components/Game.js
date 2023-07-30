@@ -15,13 +15,13 @@ const SquareImage = ({ value }) => {
     }
   };
 
-const Square = ({ squareIndex, value, row, col,selectSquare }) => {
+const Square = ({ squareIndex, value, row, col,selectSquare}) => {
   const rowStyleName = `row_${row}`;
   const colStyleName = `col_${col}`;
 
   const handleClick = () => {
-    if(typeof onselect==='function'){
-        onselect(squareIndex)
+    if(typeof selectSquare==='function'){
+        selectSquare(squareIndex)
     }
     console.log(`Clicked on square index: ${squareIndex}...`);
   };
