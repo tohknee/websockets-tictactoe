@@ -1,11 +1,13 @@
+//import hooks from react, useEffect adds code to function components that trigger side effects
+//useRef stores a reference to an object that will persist for the lifetime of the component
+//useState hook declares the state variable
 import React, { useState, useEffect, useRef } from 'react';
-
 import Home from "./components/Home";
 import Game from "./components/Game";
 
 const App = () => {
   const [playerName, setPlayerName] = useState("");
-  const [game, setGame] = useState(null);
+  const [game, setGame] = useState(null); 
 
   const webSocket = useRef(null);
 
@@ -25,21 +27,12 @@ const App = () => {
       ws.send(jsonMessage)
     }
     //websocket.current objects provides four events:open connection, message recieved, error, connection closed. can be replaced with addEventListene
-
-    // ws.onopen = () => {
-    //   const message ={
-    //     type: 'add-new-player',
-    //     data: {
-    //       playerName,
-    //     }
-    //   }
-    //   ws.send(JSON.stringify(message))
-    // };
-    //below replaces above code
+    //onopen event listener
     ws.onopen = () => {
       sendMessage('add-new-player', { playerName });
     };
     
+    //event listener
     ws.onmessage = (e) => {
       console.log(`Processing incoming message ${e.data}...`); 
     
@@ -54,17 +47,18 @@ const App = () => {
       }
     };
     
+    //event listener
     ws.onerror = (e) => {
       console.error(e);
     };
-    
+    //event listener for close. this will reset the ref object and revert state variables and send user back to the initial application state
     ws.onclose = (e) => {
       console.log(`Connection closed: ${e}`);
       webSocket.current = null;
       setPlayerName('');
       setGame(null);
     };
-    webSocket.current={ //
+    webSocket.current={ //set webSockets's ref object current property to ojbect literally instead of directly 
       ws,
       sendMessage,
     }

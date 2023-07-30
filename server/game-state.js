@@ -29,7 +29,7 @@ class Player {
     getPlayers() {
       return [this.player1, this.player2];
     }
-  
+    //getData method gets data for the game when creating WebSocket messages
     getData() {
       return {
         player1: this.player1.getData(),

@@ -4,7 +4,7 @@ const { createServer } = require("http");
 const morgan = require("morgan");
 
 const { port } = require("./config");
-const { Game, Player } = require("./game-state");
+const { Game, Player } = require("./game-state"); //imported classes
 
 const app = express();
 
@@ -21,7 +21,8 @@ const server = createServer(app);
 
 const wss = new WebSocket.Server({ server }); //create websocket server
 
-let game = null; // this module level global var is how the game will persist across websocket messages
+// this module level global var is how the game will persist across websocket messages
+let game = null;
 
 wss.on("connection", (ws) => {
   //listen for connection events
@@ -51,6 +52,7 @@ wss.on("connection", (ws) => {
   });
 });
 
+//helper function used in the startGame function
 const broadcastMessage = (type, data, players) => {
   const message = JSON.stringify({
     type,
@@ -70,9 +72,9 @@ const broadcastMessage = (type, data, players) => {
 };
 
 const startGame = () => {
-  const data = game.getData(); //gets data for current game state
+  const data = game.getData(); //gets data for current game state by calling the getData method 
   data.statusMessage = `Select a square ${game.currentPlayer.playerName}!`;
-  broadcastMessage('start-game', data, game.getPlayers());
+  broadcastMessage('start-game', data, game.getPlayers()); //sends a start game message to both players
 };
 
 
@@ -95,7 +97,7 @@ const processIncomingMessage = (jsonData, ws) => {
       game.player2 = player;
       // Call the startGame function to begin the game
       startGame();
-    } else {
+    } else { //stop gap. this will be updated in the bonus phases by adding addtional player connnections
       console.log(`Ignoring player ${playerName}...`);
       //close players websocket
       ws.close();
