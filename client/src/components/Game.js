@@ -20,9 +20,9 @@ const Square = ({ squareIndex, value, row, col,selectSquare}) => {
   const colStyleName = `col_${col}`;
 
   const handleClick = () => {
-    if(typeof selectSquare==='function'){
+    // if(typeof selectSquare==='function'){
         selectSquare(squareIndex)
-    }
+    // }
     console.log(`Clicked on square index: ${squareIndex}...`);
   };
 

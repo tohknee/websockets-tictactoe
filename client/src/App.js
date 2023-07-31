@@ -79,6 +79,14 @@ const App = () => {
     if(!game || game.gameOver || playerName !== game.currentPlayer.playerName){
       return;
     }
+    
+    const message={
+      type:'select-game-square',
+      data:{
+        squareIndex:squareIndex,
+      },
+    }
+
     webSocket.current.sendMessage('select-game-square', {squareIndex})
   }
   return (
